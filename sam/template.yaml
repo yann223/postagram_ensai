@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Posts REST API Service
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Timeout: 3
+  Api:
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
+      AllowOrigin: "'*'"
+      AllowCredentials: "'*'"
+
+Resources:
+  PostsApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: v1
+
+  GetSignedUrlPutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/getSignedUrlPut
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          S3_BUCKET: !Ref UploadsBucket
+          PostS_TABLE: !Ref PostsTable
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/LabRole
+      Events:
+        GetSignedUrlFunctionApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PostsApi
+            Path: /signedUrlPut
+            Method: GET
+
+  UploadsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "uploads-${AWS::StackName}-${AWS::Region}-${AWS::AccountId}"
+      VersioningConfiguration:
+        Status: Enabled
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - HEAD
+            AllowedOrigins:
+              - "*"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+  # Create DynamoDB table
+  PostsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "user"
+          AttributeType: "S"
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "user"
+          KeyType: "HASH"
+        - AttributeName: "id"
+          KeyType: "RANGE"
+      BillingMode: PAY_PER_REQUEST
+
+Outputs:
+  PostsApi:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${PostsApi}.execute-api.${AWS::Region}.amazonaws.com/v1"
+  S3BucketName:
+    Description: S3 bucket for file uploads
+    Value: !Ref UploadsBucket
