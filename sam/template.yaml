@@ -27,7 +27,7 @@ Resources:
       Environment:
         Variables:
           S3_BUCKET: !Ref UploadsBucket
-          PostS_TABLE: !Ref PostsTable
+          POSTS_TABLE: !Ref PostsTable
       Role: !Sub arn:aws:iam::${AWS::AccountId}:role/LabRole
       Events:
         GetSignedUrlFunctionApi:
@@ -80,3 +80,6 @@ Outputs:
   S3BucketName:
     Description: S3 bucket for file uploads
     Value: !Ref UploadsBucket
+  DynamoDbName:
+    Description: DynamoDB for the app
+    Value: !Ref PostsTable
