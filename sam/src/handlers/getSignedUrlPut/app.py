@@ -15,7 +15,7 @@ s3_client = boto3.client('s3', config=boto3.session.Config(signature_version='s3
 
 def lambda_handler(event, context):
     logger.info(event)
-    user = event["requestContext"]["authorizer"]["claims"]["cognito:username"]
+    user = event["headers"]["Authorization"]
 
     if not event["queryStringParameters"].get("filename") :
         raise Exception('Parameter missing: filename')
@@ -23,15 +23,15 @@ def lambda_handler(event, context):
     if not event["queryStringParameters"].get("filetype") :
         raise Exception('Parameter missing: filetype')
     
-    if not event["queryStringParameters"].get("taskId") :
-        raise Exception('Parameter missing: taskId')
+    if not event["queryStringParameters"].get("postId") :
+        raise Exception('Parameter missing: postId')
     
 
     
     filename = f'{uuid.uuid4()}{Path(event["queryStringParameters"]["filename"]).name}'
     filetype = event["queryStringParameters"]["filetype"]
-    task_id = event["queryStringParameters"]["taskId"]
-    object_name = f"{user}/{task_id}/{filename}"
+    post_id = event["queryStringParameters"]["postId"]
+    object_name = f"{user}/{post_id}/{filename}"
 
     try:
         url = s3_client.generate_presigned_url(
