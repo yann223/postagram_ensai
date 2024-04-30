@@ -57,7 +57,8 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
     post_json = {"id": f"ID#{post_id}",
                  "title": f"{post.title}",
                  "user": f"USER#{authorization}",
-                 "body": f"{post.body}"}
+                 "body": f"{post.body}",
+                 "image": "https://blog.fr.playstation.com/tachyon/sites/10/2023/09/adc58ff171d20c05b16033b101b3ada9f6d16c85.jpeg"}
 
     data = table.put_item(Item=post_json)
 
@@ -66,12 +67,24 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
 @app.get("/posts")
 async def get_all_posts(user: Union[str, None] = None):
 
-    resp = table.scan(
-        Select='ALL_ATTRIBUTES',
-        ReturnConsumedCapacity='TOTAL',
-    )
+    if not user:
+        resp = table.scan(
+            Select='ALL_ATTRIBUTES',
+            ReturnConsumedCapacity='TOTAL',
+        )
 
-    all_posts = resp["Items"]
+        all_posts = resp["Items"]
+    else:
+        resp = table.query(
+            Select='ALL_ATTRIBUTES',
+            KeyConditionExpression="#user = :user",
+            ExpressionAttributeValues={
+                ":user": f"USER#{user}",
+            },
+            ExpressionAttributeNames={ "#user": "user" },
+        )
+
+        all_posts = resp["Items"]
     
     # image_url = get_signed_url_put(filename=,filetype=, postId=,authorization=)
 

@@ -69,7 +69,7 @@ class ServerlessStack(TerraformStack):
             role=f"arn:aws:iam::{account_id}:role/LabRole",
             filename=code.path,
             handler="lambda_function.lambda_handler",
-            environment={"variables": {"BUCKET": f"{bucket.bucket_domain_name}"}}
+            environment={"variables": {"DYNAMO_TABLE": f"{dynamo_table.name}"}}
         )
 
         permission = LambdaPermission(
@@ -94,7 +94,7 @@ class ServerlessStack(TerraformStack):
         )
 
         TerraformOutput(self, "s3_bucket_name",
-                        value=bucket.bucket_domain_name,
+                        value=bucket.id,
                         description="Name of the S3 bucket")
 
         TerraformOutput(self, "dynamodb_table_name",

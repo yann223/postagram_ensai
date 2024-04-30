@@ -21,6 +21,8 @@ def lambda_handler(event, context):
 
     user, task_id = key.split('/')[:2]
 
+    logger.info(f"user : {user} || task_id: {task_id}")
+
     label_data = reckognition.detect_labels(
         Image={
             "S3Object": {
@@ -34,7 +36,7 @@ def lambda_handler(event, context):
 
     logger.info(f"Labels data : {label_data}")
 
-    labels = [label["Name"] for label in label_data["Labels"]]
+    labels = {label["Name"] for label in label_data["Labels"]}
 
     logger.info(f"Labels detected : {labels}")
 
@@ -43,8 +45,7 @@ def lambda_handler(event, context):
             "id": f"ID#{task_id}",
             "user": f"USER#{user}"
         },
-        AttributeUpdates={
-            "labels": labels
-        },
+        UpdateExpression="SET labels = :labels",
+        ExpressionAttributeValues={":labels": labels},
         ReturnValues='UPDATED_NEW'
     )
