@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
+import uuid
 
 from getSignedUrl import getSignedUrl
 
@@ -27,10 +28,10 @@ app.add_middleware(
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-	exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
-	logger.error(f"{request}: {exc_str}")
-	content = {'status_code': 10422, 'message': exc_str, 'data': None}
-	return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
+    logger.error(f"{request}: {exc_str}")
+    content = {'status_code': 10422, 'message': exc_str, 'data': None}
+    return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 class Post(BaseModel):
@@ -41,6 +42,7 @@ class Post(BaseModel):
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.getenv("DYNAMO_TABLE"))
 
+
 @app.post("/posts")
 async def post_a_post(post: Post, authorization: str | None = Header(default=None)):
 
@@ -49,10 +51,30 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
     logger.info(f"user : {authorization}")
 
     # Doit retourner le résultat de la requête la table dynamodb
-    return []
+
+    post_id = uuid.uuid4()
+
+    post_json = {"id": f"ID#{post_id}",
+                 "title": f"{post.title}",
+                 "user": f"USER#{authorization}",
+                 "body": f"{post.body}"}
+
+    data = table.put_item(Item=post_json)
+
+    return data
 
 @app.get("/posts")
 async def get_all_posts(user: Union[str, None] = None):
+    
+    # image_url = get_signed_url_put(filename=,filetype=, postId=,authorization=)
+
+    # post_returned = {
+    #     "id": f"{post_id}",
+    #     "title": f"{post.title}",
+    #     "image": "url_image",
+    #     "body":"string",
+    #     "labels":["string", "string"]
+    # }
 
     # Doit retourner une liste de post
     return []
