@@ -7,7 +7,7 @@ from cdktf_cdktf_provider_aws.default_subnet import DefaultSubnet
 from cdktf_cdktf_provider_aws.lambda_function import LambdaFunction
 from cdktf_cdktf_provider_aws.lambda_permission import LambdaPermission
 from cdktf_cdktf_provider_aws.data_aws_caller_identity import DataAwsCallerIdentity
-from cdktf_cdktf_provider_aws.s3_bucket import S3Bucket
+from cdktf_cdktf_provider_aws.s3_bucket import S3Bucket, S3BucketCorsRule
 from cdktf_cdktf_provider_aws.s3_bucket_notification import S3BucketNotification
 
 class ServerlessStack(TerraformStack):
@@ -31,10 +31,3 @@ app = App()
 ServerlessStack(app, "cdktf_serverless")
 app.synth()
 
-app = App()
-ServerlessStack(app, "cdktf_serverless")
-app.synth()
-
-app = App()
-ServerlessStack(app, "cdktf_serverless")
-app.synth()

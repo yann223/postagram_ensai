@@ -38,7 +38,8 @@ class Post(BaseModel):
     body: str
 
 
-
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table(os.getenv("DYNAMO_TABLE"))
 
 @app.post("/posts")
 async def post_a_post(post: Post, authorization: str | None = Header(default=None)):
@@ -58,7 +59,7 @@ async def get_all_posts(user: Union[str, None] = None):
 
     
 @app.delete("/posts/{post_id}")
-async def get_post_user_id(post_id: int):
+async def get_post_user_id(post_id: str):
     # Doit retourner le résultat de la requête la table dynamodb
     return []
 
