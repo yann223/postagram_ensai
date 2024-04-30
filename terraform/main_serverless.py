@@ -10,7 +10,7 @@ from cdktf_cdktf_provider_aws.data_aws_caller_identity import DataAwsCallerIdent
 from cdktf_cdktf_provider_aws.s3_bucket import S3Bucket
 from cdktf_cdktf_provider_aws.s3_bucket_cors_configuration import S3BucketCorsConfiguration, S3BucketCorsConfigurationCorsRule
 from cdktf_cdktf_provider_aws.s3_bucket_notification import S3BucketNotification, S3BucketNotificationLambdaFunction
-from cdktf_cdktf_provider_aws.dynamodb_table import DynamodbTable, DynamodbTableAttribute
+from cdktf_cdktf_provider_aws.dynamodb_table import DynamodbTable, DynamodbTableAttribute, DynamodbTableGlobalSecondaryIndex
 
 
 class ServerlessStack(TerraformStack):
@@ -49,7 +49,17 @@ class ServerlessStack(TerraformStack):
             ],
             billing_mode="PROVISIONED",
             read_capacity=5,
-            write_capacity=5
+            write_capacity=5,
+            global_secondary_index=[
+                DynamodbTableGlobalSecondaryIndex(
+                    name="InvertedIndex",
+                    hash_key="id",
+                    range_key="user",
+                    projection_type="ALL",
+                    write_capacity=5,
+                    read_capacity=5
+                )
+            ]
         )
 
         # Packagage du code

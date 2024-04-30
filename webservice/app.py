@@ -42,6 +42,8 @@ class Post(BaseModel):
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.getenv("DYNAMO_TABLE"))
 
+bucket = os.getenv("BUCKET")
+s3_client = boto3.client('s3')
 
 @app.post("/posts")
 async def post_a_post(post: Post, authorization: str | None = Header(default=None)):
@@ -65,9 +67,6 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
 
 @app.get("/posts")
 async def get_all_posts(user: Union[str, None] = None):
-    bucket = os.getenv("BUCKET")
-    s3_client = boto3.client('s3')
-
     if not user:
         resp = table.scan(
             Select='ALL_ATTRIBUTES',
@@ -99,8 +98,6 @@ async def get_all_posts(user: Union[str, None] = None):
             Prefix=prefix
         )
 
-        print(response)
-
         if "Contents" in response:
             for obj in response["Contents"]:
                 url = s3_client.generate_presigned_url(
@@ -127,7 +124,35 @@ async def get_all_posts(user: Union[str, None] = None):
 @app.delete("/posts/{post_id}")
 async def get_post_user_id(post_id: str):
     # Doit retourner le résultat de la requête la table dynamodb
-    return []
+
+    post = table.query(
+        IndexName="InvertedIndex",
+        Select='ALL_ATTRIBUTES',
+        KeyConditionExpression="id = :id",
+        ExpressionAttributeValues={
+            ":id": f"ID#{post_id}",
+        },
+    )
+
+    post = post["Items"][0]
+
+    del_db = table.delete_item(
+            Key={
+                'id': f"ID#{post_id}",
+                'user': post["user"]
+            }
+        )
+
+    if "image" in post:
+        user_str = post["user"]
+        user_str = user_str.replace("USER#", "")
+        prefix = f"{user_str}/{post_id}"
+        response = s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix)
+
+        for object in response['Contents']:
+            s3_client.delete_object(Bucket=bucket, Key=object['Key'])
+
+    return del_db
 
 @app.get("/signedUrlPut")
 async def get_signed_url_put(filename: str,filetype: str, postId: str,authorization: str | None = Header(default=None)):
