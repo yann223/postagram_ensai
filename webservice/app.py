@@ -51,7 +51,7 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
     return []
 
 @app.get("/posts")
-async def get_all_posts(id_user: Union[str, None] = None):
+async def get_all_posts(user: Union[str, None] = None):
 
     # Doit retourner une liste de post
     return []
