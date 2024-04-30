@@ -38,10 +38,13 @@ def lambda_handler(event, context):
 
     logger.info(f"Labels detected : {labels}")
 
-    table.update_item(Key={
-        "id": f"ID#{task_id}",
-        "user": f"USER#{user}"
-    },
-    AttributeUpdates={
-        "image": 
-    })
+    table.update_item(
+        Key={
+            "id": f"ID#{task_id}",
+            "user": f"USER#{user}"
+        },
+        AttributeUpdates={
+            "labels": labels
+        },
+        ReturnValues='UPDATED_NEW'
+    )

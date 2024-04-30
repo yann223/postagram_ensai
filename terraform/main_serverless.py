@@ -6,7 +6,6 @@ from cdktf_cdktf_provider_aws.default_vpc import DefaultVpc
 from cdktf_cdktf_provider_aws.default_subnet import DefaultSubnet
 from cdktf_cdktf_provider_aws.lambda_function import LambdaFunction
 from cdktf_cdktf_provider_aws.lambda_permission import LambdaPermission
-from cdktf_cdktf_provider_aws.lambda_event_source_mapping import LambdaEventSourceMapping
 from cdktf_cdktf_provider_aws.data_aws_caller_identity import DataAwsCallerIdentity
 from cdktf_cdktf_provider_aws.s3_bucket import S3Bucket
 from cdktf_cdktf_provider_aws.s3_bucket_cors_configuration import S3BucketCorsConfiguration, S3BucketCorsConfigurationCorsRule
@@ -38,6 +37,7 @@ class ServerlessStack(TerraformStack):
                 allowed_origins=["*"]
             )]
             )
+
         dynamo_table = DynamodbTable(
             self, "DynamodDB-table",
             name="postgram_yanis",
@@ -69,7 +69,7 @@ class ServerlessStack(TerraformStack):
             role=f"arn:aws:iam::{account_id}:role/LabRole",
             filename=code.path,
             handler="lambda_function.lambda_handler",
-            # environment={"variables":{"out_queue_url": "${aws_sqs_queue.output_queue.id}"}}
+            environment={"variables": {"BUCKET": f"{bucket.bucket_domain_name}"}}
         )
 
         permission = LambdaPermission(
@@ -79,7 +79,8 @@ class ServerlessStack(TerraformStack):
             function_name=lambda_function.arn,
             principal="s3.amazonaws.com",
             source_arn=bucket.arn,
-            source_account=account_id
+            source_account=account_id,
+            depends_on=[lambda_function, bucket]
         )
 
         notification = S3BucketNotification(
@@ -88,7 +89,8 @@ class ServerlessStack(TerraformStack):
                 lambda_function_arn=lambda_function.arn,
                 events=["s3:ObjectCreated:*"]
             )],
-            bucket=bucket.id
+            bucket=bucket.id,
+            depends_on=[permission]
         )
 
         TerraformOutput(self, "s3_bucket_name",

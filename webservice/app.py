@@ -65,6 +65,13 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
 
 @app.get("/posts")
 async def get_all_posts(user: Union[str, None] = None):
+
+    resp = table.scan(
+        Select='ALL_ATTRIBUTES',
+        ReturnConsumedCapacity='TOTAL',
+    )
+
+    all_posts = resp["Items"]
     
     # image_url = get_signed_url_put(filename=,filetype=, postId=,authorization=)
 
@@ -77,7 +84,7 @@ async def get_all_posts(user: Union[str, None] = None):
     # }
 
     # Doit retourner une liste de post
-    return []
+    return all_posts
 
     
 @app.delete("/posts/{post_id}")
