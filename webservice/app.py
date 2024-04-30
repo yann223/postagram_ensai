@@ -57,8 +57,7 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
     post_json = {"id": f"ID#{post_id}",
                  "title": f"{post.title}",
                  "user": f"USER#{authorization}",
-                 "body": f"{post.body}",
-                 "image": "https://blog.fr.playstation.com/tachyon/sites/10/2023/09/adc58ff171d20c05b16033b101b3ada9f6d16c85.jpeg"}
+                 "body": f"{post.body}",}
 
     data = table.put_item(Item=post_json)
 
@@ -66,6 +65,8 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
 
 @app.get("/posts")
 async def get_all_posts(user: Union[str, None] = None):
+    bucket = os.getenv("BUCKET")
+    s3_client = boto3.client('s3')
 
     if not user:
         resp = table.scan(
@@ -84,22 +85,45 @@ async def get_all_posts(user: Union[str, None] = None):
             ExpressionAttributeNames={ "#user": "user" },
         )
 
-        all_posts = resp["Items"]
-    
-    # image_url = get_signed_url_put(filename=,filetype=, postId=,authorization=)
+        all_posts = resp["Items"]        
 
-    # post_returned = {
-    #     "id": f"{post_id}",
-    #     "title": f"{post.title}",
-    #     "image": "url_image",
-    #     "body":"string",
-    #     "labels":["string", "string"]
-    # }
+    for post in all_posts:
+        id_str = post["id"]
+        id_str = id_str.replace("ID#", "")
+        user_str = post["user"]
+        user_str = user_str.replace("USER#", "")
+        prefix = f"{user_str}/{id_str}/"
 
-    # Doit retourner une liste de post
+        response = s3_client.list_objects_v2(
+            Bucket=bucket,
+            Prefix=prefix
+        )
+
+        print(response)
+
+        if "Contents" in response:
+            for obj in response["Contents"]:
+                url = s3_client.generate_presigned_url(
+                    Params={
+                        "Bucket": bucket,
+                        "Key": obj["Key"],
+                    },
+                    ClientMethod='get_object'
+                )
+
+            table.update_item(
+                Key={
+                    "id": f"ID#{id_str}",
+                    "user": f"USER#{user_str}"
+                },
+                UpdateExpression="SET image = :image",
+                ExpressionAttributeValues={":image": f"{url}"},
+                ReturnValues='UPDATED_NEW'
+            )
+
     return all_posts
 
-    
+
 @app.delete("/posts/{post_id}")
 async def get_post_user_id(post_id: str):
     # Doit retourner le résultat de la requête la table dynamodb
