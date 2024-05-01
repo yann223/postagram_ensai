@@ -25,8 +25,8 @@ your_repo = "https://github.com/yann223/postagram_ensai.git"
 
 user_data = base64.b64encode(f"""#!/bin/bash
 echo "userdata-start"
-echo 'export BUCKET={bucket}' >> /etc/environment
-echo 'export DYNAMO_TABLE={dynamo_table}' >> /etc/environment
+export BUCKET={bucket}
+export DYNAMO_TABLE={dynamo_table}
 export AWS_DEFAULT_REGION=us-east-1
 apt update
 apt install -y python3-pip

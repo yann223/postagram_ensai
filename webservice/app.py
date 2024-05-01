@@ -43,7 +43,7 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.getenv("DYNAMO_TABLE"))
 
 bucket = os.getenv("BUCKET")
-s3_client = boto3.client('s3')
+s3_client = boto3.client('s3', region_name="us-east-1")
 
 @app.post("/posts")
 async def post_a_post(post: Post, authorization: str | None = Header(default=None)):

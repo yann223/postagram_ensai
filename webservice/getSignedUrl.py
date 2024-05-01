@@ -10,7 +10,11 @@ from botocore.exceptions import ClientError
 # dotenv.load_dotenv()
 
 bucket = os.getenv("BUCKET")
-s3_client = boto3.client('s3', config=boto3.session.Config(signature_version='s3v4'))
+s3_client = boto3.client(
+    's3',
+    config=boto3.session.Config(signature_version='s3v4'),
+    region_name="us-east-1"
+    )
 logger = logging.getLogger("uvicorn")
 print(bucket)
 
