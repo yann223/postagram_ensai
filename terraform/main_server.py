@@ -10,8 +10,6 @@ from cdktf_cdktf_provider_aws.lb_target_group import LbTargetGroup
 from cdktf_cdktf_provider_aws.lb_listener import LbListener, LbListenerDefaultAction
 from cdktf_cdktf_provider_aws.autoscaling_group import AutoscalingGroup
 from cdktf_cdktf_provider_aws.security_group import SecurityGroup, SecurityGroupIngress, SecurityGroupEgress
-from cdktf_cdktf_provider_aws.data_aws_caller_identity import DataAwsCallerIdentity
-import os
 import boto3
 
 import base64
@@ -24,11 +22,10 @@ secret_access_key = credentials.secret_key
 session_token = credentials.token
 region_name = session.region_name
 
-# bucket = os.getenv("cdktf_bucket")
-# dynamo_table = os.getenv("cdktf_dynamo")
-bucket = "my-cdtf-bucket-postgram-yanis20240501192104646800000001"
+
+bucket = "BUCKET_NAME_PLACEHOLDER"
 dynamo_table = "postgram_yanis"
-# print(bucket, dynamo_table)
+print(bucket, dynamo_table)
 
 your_repo = "https://github.com/yann223/postagram_ensai.git"
 
