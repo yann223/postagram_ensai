@@ -27,7 +27,7 @@ user_data = base64.b64encode(f"""#!/bin/bash
 echo "userdata-start"
 echo 'export BUCKET={bucket}' >> /etc/environment
 echo 'export DYNAMO_TABLE={dynamo_table}' >> /etc/environment
-AWS_DEFAULT_REGION=us-east-1
+export AWS_DEFAULT_REGION=us-east-1
 apt update
 apt install -y python3-pip
 git clone {your_repo}
@@ -47,7 +47,7 @@ class ServerStack(TerraformStack):
             self, "default_vpc"
         )
 
-        # Les AZ de us-east-1 sont de la forme us-east-1x 
+        # Les AZ de us-east-1 sont de la forme us-east-1x
         # avec x une lettre dans abcdef. Ne permet pas de déployer
         # automatiquement ce code sur une autre région. Le code
         # pour y arriver est vraiment compliqué.
@@ -110,7 +110,7 @@ class ServerStack(TerraformStack):
 
         target_group = LbTargetGroup(
             self, "tg_group",
-            port=80,
+            port=8080,
             protocol="HTTP",
             vpc_id=default_vpc.id,
             target_type="instance"
@@ -119,7 +119,7 @@ class ServerStack(TerraformStack):
         lb_listener = LbListener(
             self, "lb_listener",
             load_balancer_arn=lb.arn,
-            port=80,
+            port=8080,
             protocol="HTTP",
             default_action=[
                 LbListenerDefaultAction(type="forward",
