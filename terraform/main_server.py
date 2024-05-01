@@ -18,17 +18,16 @@ import base64
 # bucket = os.getenv("cdktf_bucket")
 # dynamo_table = os.getenv("cdktf_dynamo")
 bucket = "postgram_yanis"
-dynamo_table = "my-cdtf-bucket-postgram-yanis20240501130916778600000001"
+dynamo_table = "my-cdtf-bucket-postgram-yanis20240501152229113600000001"
 # print(bucket, dynamo_table)
 
 your_repo = "https://github.com/yann223/postagram_ensai.git"
 
-
-user_data= base64.b64encode(f"""
-#!/bin/bash
+user_data = base64.b64encode(f"""#!/bin/bash
 echo "userdata-start"
 echo 'export BUCKET={bucket}' >> /etc/environment
 echo 'export DYNAMO_TABLE={dynamo_table}' >> /etc/environment
+AWS_DEFAULT_REGION=us-east-1
 apt update
 apt install -y python3-pip
 git clone {your_repo}
@@ -36,13 +35,13 @@ cd postagram_ensai
 cd webservice
 pip3 install -r requirements.txt
 python3 app.py
-echo "userdata-end""".encode("ascii")).decode("ascii")
+echo "userdata-end" """.encode("ascii")).decode("ascii")
+
 
 class ServerStack(TerraformStack):
     def __init__(self, scope: Construct, id: str):
         super().__init__(scope, id)
         AwsProvider(self, "AWS", region="us-east-1")
-        account_id = DataAwsCallerIdentity(self, "account_id").account_id
 
         default_vpc = DefaultVpc(
             self, "default_vpc"
@@ -94,12 +93,12 @@ class ServerStack(TerraformStack):
 
         launch_template = LaunchTemplate(
             self, "launch template",
-            image_id="ami-080e1f13689e07408",
+            image_id="ami-0557a15b87f6559cf",
             instance_type="t2.micro",
             vpc_security_group_ids=[security_group.id],
             key_name="vockey",
             user_data=user_data,
-            tags={"Name": "upostgram TF"}
+            tags={"Name": "postgram TF"}
             )
 
         lb = Lb(
