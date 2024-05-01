@@ -18,7 +18,7 @@ for i, line in enumerate(script_content):
         script_content[i] = f"bucket = \"{new_bucket_name}\"\n"
         break
 
-with open(main_server_file, "r") as file:
+with open(main_server_file, "w") as file:
     file.writelines(script_content)
 
 
@@ -30,8 +30,8 @@ with open(index_file, "r") as file:
 for i, line in enumerate(script_content):
     if line.startswith("axios.defaults.baseURL = "):
         new_dns_name = "http://LB_DNS_NAME_PLACEHOLDER:8080/"
-        script_content[i] = f"bucket = \"{new_dns_name}\"\n"
+        script_content[i] = f"axios.defaults.baseURL = \"{new_dns_name}\"\n"
         break
 
-with open(index_file, "r") as file:
+with open(index_file, "w") as file:
     file.writelines(script_content)
