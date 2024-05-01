@@ -11,6 +11,7 @@ from cdktf_cdktf_provider_aws.s3_bucket import S3Bucket
 from cdktf_cdktf_provider_aws.s3_bucket_cors_configuration import S3BucketCorsConfiguration, S3BucketCorsConfigurationCorsRule
 from cdktf_cdktf_provider_aws.s3_bucket_notification import S3BucketNotification, S3BucketNotificationLambdaFunction
 from cdktf_cdktf_provider_aws.dynamodb_table import DynamodbTable, DynamodbTableAttribute, DynamodbTableGlobalSecondaryIndex
+import os
 
 
 class ServerlessStack(TerraformStack):
@@ -110,6 +111,9 @@ class ServerlessStack(TerraformStack):
         TerraformOutput(self, "dynamodb_table_name",
                         value=dynamo_table.name,
                         description="Name of the DynamoDB table")
+
+        os.environ["cdktf_dynamo"] = dynamo_table.name
+        os.environ["cdktf_bucket"] = bucket.id
 
 
 app = App()

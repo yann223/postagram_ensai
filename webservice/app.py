@@ -52,7 +52,14 @@ async def post_a_post(post: Post, authorization: str | None = Header(default=Non
     logger.info(f"body : {post.body}")
     logger.info(f"user : {authorization}")
 
-    # Doit retourner le résultat de la requête la table dynamodb
+    if not post.title:
+        raise TypeError("Please insert a title")
+
+    if not post.body:
+        raise TypeError("Please insert content")
+
+    if not authorization:
+        raise TypeError("You must be logged to post")
 
     post_id = uuid.uuid4()
 

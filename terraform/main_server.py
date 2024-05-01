@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from constructs import Construct
-from cdktf import App, TerraformStack
+from cdktf import App, TerraformStack, TerraformOutput
 from cdktf_cdktf_provider_aws.provider import AwsProvider
 from cdktf_cdktf_provider_aws.default_vpc import DefaultVpc
 from cdktf_cdktf_provider_aws.default_subnet import DefaultSubnet
@@ -11,15 +11,13 @@ from cdktf_cdktf_provider_aws.lb_listener import LbListener, LbListenerDefaultAc
 from cdktf_cdktf_provider_aws.autoscaling_group import AutoscalingGroup
 from cdktf_cdktf_provider_aws.security_group import SecurityGroup, SecurityGroupIngress, SecurityGroupEgress
 from cdktf_cdktf_provider_aws.data_aws_caller_identity import DataAwsCallerIdentity
+import os
 
 import base64
 
-serverless_outputs = TerraformStack.from_remote_state(
-    self, "serverless_outputs", stack_name="cdktf_serverless"
-)
-
-bucket = serverless_outputs.get_output("s3_bucket_name")
-dynamodb_table = serverless_outputs.get_output("dynamodb_table_name")
+bucket = os.getenv("cdktf_bucket")
+dynamo_table = os.getenv("cdktf_dynamo")
+print(bucket,dynamo_table)
 
 your_repo = "https://github.com/yann223/postagram_ensai"
 
@@ -91,7 +89,7 @@ class ServerStack(TerraformStack):
                 )
             ]
             )
-        
+
         launch_template = LaunchTemplate(
             self, "launch template",
             image_id="ami-080e1f13689e07408",
@@ -101,7 +99,7 @@ class ServerStack(TerraformStack):
             user_data=user_data,
             tags={"Name":"template TF"}
             )
-        
+
         lb = Lb(
             self, "lb",
             load_balancer_type="application",
@@ -127,13 +125,17 @@ class ServerStack(TerraformStack):
 
         asg = AutoscalingGroup(
             self, "asg",
-            min_size=2,
+            min_size=1,
             max_size=4,
-            desired_capacity=2,
+            desired_capacity=1,
             launch_template={"id":launch_template.id},
             vpc_zone_identifier= subnets,
             target_group_arns=[target_group.arn]
         )
+
+        TerraformOutput(self, "lb_dns_name",
+                        value=lb.dns_name,
+                        description="Name of the Load balancer DNS")
 
 
 app = App()
