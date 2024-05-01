@@ -13,7 +13,7 @@ import uuid
 
 from getSignedUrl import getSignedUrl
 
-load_dotenv()
+# load_dotenv()
 
 app = FastAPI()
 logger = logging.getLogger("uvicorn")

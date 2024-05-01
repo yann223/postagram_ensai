@@ -15,21 +15,24 @@ import os
 
 import base64
 
-bucket = os.getenv("cdktf_bucket")
-dynamo_table = os.getenv("cdktf_dynamo")
-print(bucket,dynamo_table)
+# bucket = os.getenv("cdktf_bucket")
+# dynamo_table = os.getenv("cdktf_dynamo")
+bucket = "postgram_yanis"
+dynamo_table = "my-cdtf-bucket-postgram-yanis20240501130916778600000001"
+# print(bucket, dynamo_table)
 
-your_repo = "https://github.com/yann223/postagram_ensai"
+your_repo = "https://github.com/yann223/postagram_ensai.git"
 
 
 user_data= base64.b64encode(f"""
 #!/bin/bash
 echo "userdata-start"
 echo 'export BUCKET={bucket}' >> /etc/environment
-echo 'export DYNAMO_TABLE={dynamo_table}' >> /etc/environment           
+echo 'export DYNAMO_TABLE={dynamo_table}' >> /etc/environment
 apt update
 apt install -y python3-pip
 git clone {your_repo}
+cd postagram_ensai
 cd webservice
 pip3 install -r requirements.txt
 python3 app.py
@@ -44,22 +47,21 @@ class ServerStack(TerraformStack):
         default_vpc = DefaultVpc(
             self, "default_vpc"
         )
-         
+
         # Les AZ de us-east-1 sont de la forme us-east-1x 
         # avec x une lettre dans abcdef. Ne permet pas de déployer
         # automatiquement ce code sur une autre région. Le code
         # pour y arriver est vraiment compliqué.
         az_ids = [f"us-east-1{i}" for i in "abcdef"]
-        subnets= []
-        for i,az_id in enumerate(az_ids):
+        subnets = []
+        for i, az_id in enumerate(az_ids):
             subnets.append(DefaultSubnet(
-            self, f"default_sub{i}",
-            availability_zone=az_id
-        ).id)
-            
+                self, f"default_sub{i}",
+                availability_zone=az_id
+            ).id)
 
         security_group = SecurityGroup(
-            self, "sg-tp",
+            self, "sg-postgram",
             ingress=[
                 SecurityGroupIngress(
                     from_port=22,
@@ -97,7 +99,7 @@ class ServerStack(TerraformStack):
             vpc_security_group_ids=[security_group.id],
             key_name="vockey",
             user_data=user_data,
-            tags={"Name":"template TF"}
+            tags={"Name": "upostgram TF"}
             )
 
         lb = Lb(
@@ -120,7 +122,9 @@ class ServerStack(TerraformStack):
             load_balancer_arn=lb.arn,
             port=80,
             protocol="HTTP",
-            default_action=[LbListenerDefaultAction(type="forward", target_group_arn=target_group.arn)]
+            default_action=[
+                LbListenerDefaultAction(type="forward",
+                                        target_group_arn=target_group.arn)]
         )
 
         asg = AutoscalingGroup(
@@ -128,8 +132,8 @@ class ServerStack(TerraformStack):
             min_size=1,
             max_size=4,
             desired_capacity=1,
-            launch_template={"id":launch_template.id},
-            vpc_zone_identifier= subnets,
+            launch_template={"id": launch_template.id},
+            vpc_zone_identifier=subnets,
             target_group_arns=[target_group.arn]
         )
 
