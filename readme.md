@@ -3,6 +3,7 @@
 ## How to start?
 
 - First make sure you have your own aws credentials stored in `~/.aws/credentials`
+- Clone the repo: `https://github.com/yann223/postagram_ensai.git`
 - Run `python3 postgram.py` and follow the steps in the console (Click on allow when needed to and paste what's needed, `CTRL + SHIFT + C` and `CTRL + SHIFT + V` to copy and paste in the console)
 - The app will open in your browser once everything is deployed (estimated time: 5 minutes)
 - Refresh the webpage after posting to load the images

@@ -13,8 +13,6 @@ import uuid
 
 from getSignedUrl import getSignedUrl
 
-# load_dotenv()
-
 app = FastAPI()
 logger = logging.getLogger("uvicorn")
 
@@ -130,7 +128,6 @@ async def get_all_posts(user: Union[str, None] = None):
 
 @app.delete("/posts/{post_id}")
 async def get_post_user_id(post_id: str):
-    # Doit retourner le résultat de la requête la table dynamodb
 
     post = table.query(
         IndexName="InvertedIndex",

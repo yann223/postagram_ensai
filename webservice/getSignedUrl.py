@@ -1,13 +1,10 @@
 import logging
 import boto3
-from boto3.dynamodb.conditions import Key
 import os
-import dotenv
 import uuid
 from pathlib import Path
 from botocore.exceptions import ClientError
 
-# dotenv.load_dotenv()
 
 bucket = os.getenv("BUCKET")
 s3_client = boto3.client(

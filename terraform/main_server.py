@@ -25,7 +25,6 @@ region_name = session.region_name
 
 bucket = "BUCKET_NAME_PLACEHOLDER"
 dynamo_table = "postgram_yanis"
-print(bucket, dynamo_table)
 
 your_repo = "https://github.com/yann223/postagram_ensai.git"
 
