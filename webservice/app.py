@@ -14,7 +14,6 @@ import uuid
 from getSignedUrl import getSignedUrl
 
 # load_dotenv()
-os.system("source /etc/environment")
 
 app = FastAPI()
 logger = logging.getLogger("uvicorn")

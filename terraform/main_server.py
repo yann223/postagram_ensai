@@ -40,6 +40,12 @@ echo 'export AWS_ACCESS_KEY_ID={access_key_id}' >> /etc/environment
 echo 'export AWS_SECRET_ACCESS_KEY={secret_access_key}' >> /etc/environment
 echo 'export AWS_SESSION_TOKEN={session_token}' >> /etc/environment
 echo 'export AWS_DEFAULT_REGION={region_name}' >> /etc/environment
+export BUCKET={bucket}
+export DYNAMO_TABLE={dynamo_table}
+export AWS_ACCESS_KEY_ID={access_key_id}
+export AWS_SECRET_ACCESS_KEY={secret_access_key}
+export AWS_SESSION_TOKEN={session_token}
+export AWS_DEFAULT_REGION={region_name}
 apt update
 apt install -y python3-pip
 git clone {your_repo}
