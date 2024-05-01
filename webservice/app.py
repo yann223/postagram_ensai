@@ -39,7 +39,7 @@ class Post(BaseModel):
     body: str
 
 
-dynamodb = boto3.resource('dynamodb')
+dynamodb = boto3.resource('dynamodb', region_name="us-east-1")
 table = dynamodb.Table(os.getenv("DYNAMO_TABLE"))
 
 bucket = os.getenv("BUCKET")

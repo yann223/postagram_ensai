@@ -12,22 +12,34 @@ from cdktf_cdktf_provider_aws.autoscaling_group import AutoscalingGroup
 from cdktf_cdktf_provider_aws.security_group import SecurityGroup, SecurityGroupIngress, SecurityGroupEgress
 from cdktf_cdktf_provider_aws.data_aws_caller_identity import DataAwsCallerIdentity
 import os
+import boto3
 
 import base64
 
+# Access AWS credentials from the session
+session = boto3.Session()
+credentials = session.get_credentials()
+access_key_id = credentials.access_key
+secret_access_key = credentials.secret_key
+session_token = credentials.token
+region_name = session.region_name
+
 # bucket = os.getenv("cdktf_bucket")
 # dynamo_table = os.getenv("cdktf_dynamo")
-bucket = "postgram_yanis"
-dynamo_table = "my-cdtf-bucket-postgram-yanis20240501152229113600000001"
+bucket = "my-cdtf-bucket-postgram-yanis20240501152229113600000001"
+dynamo_table = "postgram_yanis"
 # print(bucket, dynamo_table)
 
 your_repo = "https://github.com/yann223/postagram_ensai.git"
 
 user_data = base64.b64encode(f"""#!/bin/bash
 echo "userdata-start"
-export BUCKET={bucket}
-export DYNAMO_TABLE={dynamo_table}
-export AWS_DEFAULT_REGION=us-east-1
+echo 'export BUCKET={bucket}' >> /etc/environment
+echo 'export DYNAMO_TABLE={dynamo_table}' >> /etc/environment
+echo 'export AWS_ACCESS_KEY_ID={access_key_id}' >> /etc/environment
+echo 'export AWS_SECRET_ACCESS_KEY={secret_access_key}' >> /etc/environment
+echo 'export AWS_SESSION_TOKEN={session_token}' >> /etc/environment
+echo 'export AWS_DEFAULT_REGION={region_name}' >> /etc/environment
 apt update
 apt install -y python3-pip
 git clone {your_repo}
