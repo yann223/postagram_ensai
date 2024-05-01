@@ -26,7 +26,7 @@ region_name = session.region_name
 
 # bucket = os.getenv("cdktf_bucket")
 # dynamo_table = os.getenv("cdktf_dynamo")
-bucket = "my-cdtf-bucket-postgram-yanis20240501152229113600000001"
+bucket = "my-cdtf-bucket-postgram-yanis20240501192104646800000001"
 dynamo_table = "postgram_yanis"
 # print(bucket, dynamo_table)
 
@@ -46,6 +46,7 @@ git clone {your_repo}
 cd postagram_ensai
 cd webservice
 pip3 install -r requirements.txt
+sleep 2
 python3 app.py
 echo "userdata-end" """.encode("ascii")).decode("ascii")
 
